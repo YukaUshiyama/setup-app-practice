@@ -1,66 +1,132 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Laravel環境構築する手順
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+# １　プロジェクト用のディレクトリを作成、そのディレクトリに移動
 
-## About Laravel
+# ２　ディレクトリ内にLaravelプロジェクトを作成
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+例：
+・Laravel 10.xプロジェクトを作成
+＿＿＿＿＿＿＿＿＿＿
+docker run --rm \
+ -u "$(id -u):$(id -g)" \
+ -v "$(pwd):/var/www/html" \
+ -w /var/www/html \
+ -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+ laravelsail/php82-composer:latest \
+ composer create-project laravel/laravel:^10.0 〇〇
+＿＿＿＿＿＿＿＿＿＿
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+//Laravel 10.xをインストールした〇〇(ディレクトリ名)を作成
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+# ３　 Laravel Sailをインストールする
 
-## Learning Laravel
+例：
+・プロジェクトディレクトリに移動
+cd 〇〇(２で作成したディレクトリ)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+・Laravel Sailのインストール
+＿＿＿＿＿＿＿＿＿＿
+docker run --rm \
+ -u "$(id -u):$(id -g)" \
+ -v "$(pwd):/var/www/html" \
+ -w /var/www/html \
+ -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+ laravelsail/php82-composer:latest \
+ composer require laravel/sail --dev
+＿＿＿＿＿＿＿＿＿＿
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+# ４　Sailの設定ファイル作成
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+例：
+・Sailの設定ファイルを生成
+＿＿＿＿＿＿＿＿＿＿
+docker run --rm \
+ -u "$(id -u):$(id -g)" \
+ -v "$(pwd):/var/www/html" \
+ -w /var/www/html \
+ -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+ laravelsail/php82-composer:latest \
+ php artisan sail:install --with=mysql
+＿＿＿＿＿＿＿＿＿＿
 
-## Laravel Sponsors
+# 5　.envファイルを確認する(必要あれば)
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+# 6 phpMyAdminを追加する(データベースをブラウザ管理可能にさせるため)
 
-### Premium Partners
+手順
+compose.yamlを開いてmysqlサービスの後に
+＿＿＿＿＿＿＿＿＿＿
+phpmyadmin:
+image: 'phpmyadmin:latest'
+ports: - '${FORWARD_PHPMYADMIN_PORT:-8080}:80'
+        environment:
+            PMA_HOST: mysql
+            PMA_USER: '${DB_USERNAME}'
+PMA_PASSWORD: '${DB_PASSWORD}'
+networks: - sail
+depends_on: - mysql
+＿＿＿＿＿＿＿＿＿＿
+を記入。
+！この際インデントがずれると正しく動作しないため注意が必要！
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+# 7 ファイルの構築は完了Sailを起動する
 
-## Contributing
+./vendor/bin/sail ps
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+# 8　エイリアス設定(マストではない)
 
-## Code of Conduct
+なんのため？->毎回立ち上げの度./vendor/bin/sail psと打つのは面倒かつタイプミスがあると時間のロスに繋がるためコードを簡潔で簡単なものにするため
+＿＿＿＿＿＿＿＿＿＿
+echo "alias sail='[ -f sail ] && bash sail || bash vendor/bin/sail'" >> ~/.zshrc
+＿＿＿＿＿＿＿＿＿＿
+を打ち込んで設定->その後設定を反映するために
+＿＿＿＿＿＿＿＿＿＿
+exec $SHELL
+＿＿＿＿＿＿＿＿＿＿
+これをすると今後このプロジェクト起動の際は
+＿＿＿＿＿＿＿＿＿＿
+sail up -d
+＿＿＿＿＿＿＿＿＿＿
+だけで起動させることができる！
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# 9 アプリケーションキー作成
 
-## Security Vulnerabilities
+セキュリティーのため必要
+＿＿＿＿＿＿＿＿＿＿
+エイリアス未設定の場合
+->
+./vendor/bin/sail artisan key:generate
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+エイリアス設定済の場合
+->
+sail artisan key:generate
+＿＿＿＿＿＿＿＿＿＿
 
-## License
+# 10 環境構築完了動作確認を行う
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+ブラウザでURLにアクセスして正しく表示されているか確認
+
+# 最後にGitHubにpushする
+
+＿＿＿＿＿＿＿＿＿＿
+初めてgitにコミットさせる場合
+->
+１Gitにpushしたいディレクトリに移動
+２[git init]で今いるディレクトリをgit環境に置く
+３[git add .]変更したファイルを全部「次のコミットに含めますよ」という準備（ステージング）をする
+→ . は今いるディレクトリ以下全部という指定
+4[git commit -m "first commit"]ステージングした内容を履歴として保存する
+→" "内はコミットメッセージ。何をコミットするのかわかりやすく簡潔に書く
+5[git remote add origin <リポジトリURL>]このローカルリポジトリ(今いるディレクトリ)とGitHub上のリポジトリを関連付ける
+6[git branch -M main]現在のブランチ名を「main」に変更する
+→ブランチとは？　開発するための作業スペース
+→ -M 強制的に名前を変更するという意味合いのコマンド
+7[git push -u origin main]mainブランチのコミット履歴をorigin（GitHub）へ送る
+→ -u 今後このmainはorigin/mainとセットですよと宣言するコマンド次からgit pushだけで済む
+
+二回目以降gitにコミットさせる場合
+１[git status]で変更を確認(pushが必要なファイルがあるかどうか)
+２[git add 〇〇]変更したファイルを「次のコミットに含めますよ」という準備（ステージング）をする。〇〇に変更したファイル名
+３[git commit -m "〇〇"]〇〇にわかりやすいコミットメッセージ
+４[git push]GitHubにコミット履歴を送る
+＿＿＿＿＿＿＿＿＿＿
